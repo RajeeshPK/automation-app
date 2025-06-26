@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automation Playground</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 90%;
+            margin: 1rem;
+            box-sizing: border-box;
+        }
+        /* Custom styles for elements to ensure visibility and distinctness */
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease-in-out;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #3b82f6; /* Blue-500 */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        button {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .btn-primary {
+            background-color: #3b82f6; /* Blue-500 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+        }
+        .btn-secondary {
+            background-color: #6b7280; /* Gray-500 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+        }
+        .btn-warning {
+            background-color: #f59e0b; /* Amber-500 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+        }
+        .error-message {
+            color: #ef4444; /* Red-500 */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+        .success-message {
+            color: #22c55e; /* Green-500 */
+            font-size: 0.875rem; /* text-sm */
+            margin-bottom: 1rem;
+        }
+
+        /* Shadow DOM Host Styling */
+        #shadow-host {
+            display: block;
+            border: 2px dashed #9ca3af; /* Gray-400 */
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        #shadow-host::before {
+            content: "Content within Shadow DOM:";
+            display: block;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #4b5563; /* Gray-700 */
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .modal-content h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        .modal-content p {
+            margin-bottom: 1.5rem;
+            color: #4b5563;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 768px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1024px;
+            }
+            .grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <!-- Login Page -->
+        <div id="login-page" class="flex flex-col items-center justify-center min-h-[500px]">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Login to Automation Playground</h2>
+            <form id="login-form" class="w-full max-w-sm">
+                <div class="mb-4">
+                    <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="testuser">
+                    <p id="username-error" class="error-message hidden">Username cannot be empty.</p>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="testpassword">
+                    <p id="password-error" class="error-message hidden">Password cannot be empty.</p>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" id="login-button" class="btn-primary w-full py-2.5 rounded-lg">Login</button>
+                </div>
+                <p id="login-error" class="error-message mt-4 text-center hidden">Invalid username or password.</p>
+            </form>
+        </div>
+
+        <!-- Home Page -->
+        <div id="home-page" class="hidden">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 class="text-3xl font-bold text-gray-800">Welcome to the Automation Playground!</h2>
+                <button id="logout-button" class="btn-secondary py-2 px-4 rounded-lg">Logout</button>
+            </div>
+
+            <!-- Section: Basic HTML Elements -->
+            <section class="mb-8 p-6 bg-gray-50 rounded-lg shadow-sm">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">1. Basic HTML Elements</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="text-input" class="block text-gray-700 text-sm font-bold mb-2">Text Input:</label>
+                        <input type="text" id="text-input" placeholder="Enter some text" value="Initial Text Value">
+                    </div>
+                    <div>
+                        <label for="email-input" class="block text-gray-700 text-sm font-bold mb-2">Email Input:</label>
+                        <input type="email" id="email-input" placeholder="name@example.com">
+                    </div>
+                    <div>
+                        <label for="number-input" class="block text-gray-700 text-sm font-bold mb-2">Number Input:</label>
+                        <input type="number" id="number-input" placeholder="Enter a number" value="123">
+                    </div>
+                    <div>
+                        <label for="date-input" class="block text-gray-700 text-sm font-bold mb-2">Date Input:</label>
+                        <input type="date" id="date-input">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="textarea-input" class="block text-gray-700 text-sm font-bold mb-2">Text Area:</label>
+                        <textarea id="textarea-input" rows="4" placeholder="Enter multi-line text here..."></textarea>
+                    </div>
+                    <div>
+                        <button id="submit-form-button" class="btn-primary">Submit Form</button>
+                    </div>
+                    <div>
+                        <a href="#" id="example-link" class="text-blue-600 hover:underline">Clickable Link</a>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Checkboxes and Radio Buttons:</h4>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="checkbox-option-1" name="options" class="rounded text-blue-600 focus:ring-blue-500" checked>
+                        <label for="checkbox-option-1" class="ml-2 text-gray-700">Option 1 (checked)</label>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="checkbox-option-2" name="options" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="checkbox-option-2" class="ml-2 text-gray-700">Option 2</label>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="flex items-center mb-2">
+                            <input type="radio" id="radio-choice-1" name="choice" value="choice1" class="text-blue-600 focus:ring-blue-500" checked>
+                            <label for="radio-choice-1" class="ml-2 text-gray-700">Choice A (selected)</label>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <input type="radio" id="radio-choice-2" name="choice" value="choice2" class="text-blue-600 focus:ring-blue-500">
+                            <label for="radio-choice-2" class="ml-2 text-gray-700">Choice B</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Dropdown and Slider:</h4>
+                    <label for="dropdown-select" class="block text-gray-700 text-sm font-bold mb-2">Select an option:</label>
+                    <select id="dropdown-select" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="option1">Dropdown Option 1</option>
+                        <option value="option2">Dropdown Option 2</option>
+                        <option value="option3">Dropdown Option 3</option>
+                    </select>
+
+                    <label for="range-slider" class="block text-gray-700 text-sm font-bold mb-2 mt-4">Range Slider (Value: <span id="slider-value">50</span>):</label>
+                    <input type="range" id="range-slider" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </section>
+
+            <!-- Section: Advanced Interactions -->
+            <section class="mb-8 p-6 bg-gray-50 rounded-lg shadow-sm">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">2. Advanced Interactions</h3>
+
+                <!-- File Upload -->
+                <div class="mb-6">
+                    <label for="file-upload" class="block text-gray-700 text-sm font-bold mb-2">File Upload:</label>
+                    <input type="file" id="file-upload" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p id="file-upload-status" class="mt-2 text-sm text-gray-600">No file chosen</p>
+                </div>
+
+                <!-- Iframe Example -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Iframe Content:</h4>
+                    <iframe id="test-iframe" srcdoc="
+                        <!DOCTYPE html>
+                        <html lang='en'>
+                        <head>
+                            <style>
+                                body { font-family: 'Inter', sans-serif; background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; }
+                                p { color: #4b5563; margin-bottom: 1rem; text-align: center; }
+                                .iframe-button { background-color: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: background-color 0.2s; }
+                                .iframe-button:hover { background-color: #059669; }
+                                .iframe-input { border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.5rem; width: 80%; margin-bottom: 1rem; }
+                            </style>
+                        </head>
+                        <body>
+                            <p>This is content inside an iframe.</p>
+                            <input type='text' id='iframe-input' class='iframe-input' placeholder='Type inside iframe'>
+                            <button id='iframe-button' class='iframe-button'>Iframe Button</button>
+                            <p id='iframe-message' style='color: #22c55e; margin-top: 1rem; display: none;'>Button clicked in iframe!</p>
+                            <script>
+                                document.getElementById('iframe-button').addEventListener('click', () => {
+                                    document.getElementById('iframe-message').style.display = 'block';
+                                    const inputVal = document.getElementById('iframe-input').value;
+                                    // You can send this message back to the parent if needed, for automation testing
+                                    // window.parent.postMessage({ type: 'IFRAME_MESSAGE', value: inputVal }, '*');
+                                });
+                            </script>
+                        </body>
+                        </html>
+                    " class="w-full h-64 border border-gray-300 rounded-lg"></iframe>
+                </div>
+
+                <!-- Shadow DOM Example -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Shadow DOM Content:</h4>
+                    <div id="shadow-host"></div>
+                </div>
+
+                <!-- Disabled Elements -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Disabled Elements:</h4>
+                    <input type="text" id="disabled-input" value="Cannot edit this" disabled class="bg-gray-100 cursor-not-allowed">
+                    <button id="disabled-button" class="btn-primary opacity-50 cursor-not-allowed" disabled>Disabled Button</button>
+                </div>
+            </section>
+
+            <!-- Section: Elements Matching Same Locator -->
+            <section class="mb-8 p-6 bg-gray-50 rounded-lg shadow-sm">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">3. Many Elements Matching Same Locator</h3>
+
+                <!-- List of items with same class -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">List Items (class="list-item-common"):</h4>
+                    <ul id="common-list-items">
+                        <li class="list-item-common p-2 mb-2 bg-white rounded shadow-sm">Item 1 - Unique ID: <span id="item-1-text">Apple</span></li>
+                        <li class="list-item-common p-2 mb-2 bg-white rounded shadow-sm">Item 2 - Unique ID: <span id="item-2-text">Banana</span></li>
+                        <li class="list-item-common p-2 mb-2 bg-white rounded shadow-sm">Item 3 - Unique ID: <span id="item-3-text">Cherry</span></li>
+                        <li class="list-item-common p-2 mb-2 bg-white rounded shadow-sm">Item 4 - Unique ID: <span id="item-4-text">Date</span></li>
+                    </ul>
+                </div>
+
+                <!-- Table with common class in cells -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Product Table (cells with class="product-data"):</h4>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="p-3 border border-gray-300 rounded-tl-lg">Product Name</th>
+                                <th class="p-3 border border-gray-300">Price</th>
+                                <th class="p-3 border border-gray-300 rounded-tr-lg">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="product-data p-3 border border-gray-300">Laptop</td>
+                                <td class="product-data p-3 border border-gray-300">$1200.00</td>
+                                <td class="product-data p-3 border border-gray-300">5</td>
+                            </tr>
+                            <tr>
+                                <td class="product-data p-3 border border-gray-300">Mouse</td>
+                                <td class="product-data p-3 border border-gray-300">$25.00</td>
+                                <td class="product-data p-3 border border-gray-300">50</td>
+                            </tr>
+                            <tr>
+                                <td class="product-data p-3 border border-gray-300">Keyboard</td>
+                                <td class="product-data p-3 border border-gray-300"></td> <!-- Empty cell -->
+                                <td class="product-data p-3 border border-gray-300">20</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Multiple buttons with similar text -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Action Buttons (class="action-btn"):</h4>
+                    <div class="flex flex-wrap gap-4">
+                        <button class="action-btn btn-warning">Action 1</button>
+                        <button class="action-btn btn-primary">Action 2</button>
+                        <button class="action-btn btn-secondary">Action 3</button>
+                        <button class="action-btn btn-warning">Action 4</button>
+                    </div>
+                </div>
+
+                <!-- Dynamically Added Elements -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Dynamic Elements:</h4>
+                    <button id="add-dynamic-elements" class="btn-primary mr-2">Add Elements</button>
+                    <button id="remove-dynamic-elements" class="btn-secondary">Remove Elements</button>
+                    <div id="dynamic-container" class="mt-4 flex flex-wrap gap-2">
+                        <!-- Dynamic elements will be added here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Modals and Hidden Elements -->
+            <section class="mb-8 p-6 bg-gray-50 rounded-lg shadow-sm">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-700">4. Modals and Hidden Elements</h3>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Message Modal:</h4>
+                    <button id="show-modal-button" class="btn-primary">Show Custom Modal</button>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium mb-3 text-gray-700">Hidden Elements:</h4>
+                    <p id="hidden-text" class="hidden text-gray-600 p-2 border border-gray-300 rounded">This text is initially hidden.</p>
+                    <button id="toggle-hidden-text" class="btn-secondary">Toggle Hidden Text</button>
+                </div>
+                <input type="hidden" id="hidden-input-field" value="secret_value_123">
+            </section>
+        </div>
+    </div>
+
+    <!-- Custom Modal Structure -->
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <p id="modal-message"></p>
+            <button id="modal-close-button" class="btn-primary py-2 px-4 rounded-lg">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Custom Element with Shadow DOM
+        class ShadowDomComponent extends HTMLElement {
+            constructor() {
+                super();
+                // Attach a shadow root to the custom element
+                const shadowRoot = this.attachShadow({ mode: 'open' }); // 'open' allows JS access from outside
+
+                // Define the template for the Shadow DOM content
+                shadowRoot.innerHTML = `
+                    <style>
+                        /* Styles encapsulated within Shadow DOM */
+                        .shadow-container {
+                            background-color: #ecfdf5; /* Green-50 */
+                            padding: 1.5rem;
+                            border-radius: 0.75rem;
+                            border: 1px solid #a7f3d0; /* Green-200 */
+                            margin-bottom: 1rem;
+                            text-align: center;
+                        }
+                        .shadow-text {
+                            color: #065f46; /* Green-800 */
+                            font-weight: 600;
+                            margin-bottom: 1rem;
+                        }
+                        .shadow-input {
+                            border: 1px solid #d1d5db;
+                            border-radius: 0.5rem;
+                            padding: 0.75rem 1rem;
+                            width: 80%;
+                            box-sizing: border-box;
+                            margin-bottom: 1rem;
+                        }
+                        .shadow-button {
+                            background-color: #f97316; /* Orange-500 */
+                            color: white;
+                            padding: 0.75rem 1.5rem;
+                            border-radius: 0.5rem;
+                            font-weight: 600;
+                            border: none;
+                            cursor: pointer;
+                        }
+                        .shadow-button:hover {
+                            background-color: #ea580c; /* Orange-600 */
+                        }
+                        .shadow-message {
+                            color: #b91c1c; /* Red-700 */
+                            margin-top: 1rem;
+                            display: none;
+                        }
+                    </style>
+                    <div class="shadow-container">
+                        <p class="shadow-text">This content is inside a Shadow DOM. Try interacting with it!</p>
+                        <input type="text" id="shadow-input" class="shadow-input" placeholder="Shadow input">
+                        <button id="shadow-button" class="shadow-button">Shadow Button</button>
+                        <p id="shadow-message" class="shadow-message">Shadow button clicked!</p>
+                    </div>
+                `;
+
+                // Add event listener to the button inside Shadow DOM
+                shadowRoot.getElementById('shadow-button').addEventListener('click', () => {
+                    const messageElement = shadowRoot.getElementById('shadow-message');
+                    messageElement.style.display = 'block';
+                    const inputValue = shadowRoot.getElementById('shadow-input').value;
+                    console.log('Shadow input value:', inputValue);
+                    // For automation, you might want to assert on the message visibility or input value
+                });
+            }
+        }
+        // Define the custom element
+        customElements.define('shadow-dom-component', ShadowDomComponent);
+
+        // --- Global Variables and DOM Elements ---
+        const loginPage = document.getElementById('login-page');
+        const homePage = document.getElementById('home-page');
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const usernameError = document.getElementById('username-error');
+        const passwordError = document.getElementById('password-error');
+        const loginError = document.getElementById('login-error');
+
+        const fileUploadInput = document.getElementById('file-upload');
+        const fileUploadStatus = document.getElementById('file-upload-status');
+        const rangeSlider = document.getElementById('range-slider');
+        const sliderValueSpan = document.getElementById('slider-value');
+        const showModalButton = document.getElementById('show-modal-button');
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const toggleHiddenTextButton = document.getElementById('toggle-hidden-text');
+        const hiddenTextElement = document.getElementById('hidden-text');
+        const dynamicContainer = document.getElementById('dynamic-container');
+        const addDynamicElementsButton = document.getElementById('add-dynamic-elements');
+        const removeDynamicElementsButton = document.getElementById('remove-dynamic-elements');
+
+        // --- Page State Management ---
+        let isLoggedIn = false;
+
+        function showPage(pageId) {
+            loginPage.classList.add('hidden');
+            homePage.classList.add('hidden');
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function checkLoginStatus() {
+            // In a real app, this would check a token/session storage
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                isLoggedIn = true;
+                showPage('home-page');
+            } else {
+                isLoggedIn = false;
+                showPage('login-page');
+            }
+        }
+
+        // --- Event Listeners ---
+
+        // Login Form Submission
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            usernameError.classList.add('hidden');
+            passwordError.classList.add('hidden');
+            loginError.classList.add('hidden');
+
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            let isValid = true;
+            if (username.trim() === '') {
+                usernameError.classList.remove('hidden');
+                isValid = false;
+            }
+            if (password.trim() === '') {
+                passwordError.classList.remove('hidden');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Simple validation for demonstration purposes
+                if (username === 'testuser' && password === 'testpassword') {
+                    isLoggedIn = true;
+                    localStorage.setItem('isLoggedIn', 'true');
+                    showPage('home-page');
+                    console.log('Login successful!');
+                } else {
+                    loginError.classList.remove('hidden');
+                }
+            }
+        });
+
+        // Logout Button
+        logoutButton.addEventListener('click', () => {
+            isLoggedIn = false;
+            localStorage.removeItem('isLoggedIn');
+            showPage('login-page');
+            console.log('Logged out.');
+            // Clear inputs for next login attempt
+            usernameInput.value = 'testuser';
+            passwordInput.value = 'testpassword';
+            loginError.classList.add('hidden');
+        });
+
+        // File Upload Change Listener
+        fileUploadInput.addEventListener('change', (event) => {
+            const files = event.target.files;
+            if (files.length > 0) {
+                fileUploadStatus.textContent = `Selected file: ${files[0].name} (${(files[0].size / 1024).toFixed(2)} KB)`;
+                fileUploadStatus.classList.remove('text-gray-600');
+                fileUploadStatus.classList.add('text-green-600');
+            } else {
+                fileUploadStatus.textContent = 'No file chosen';
+                fileUploadStatus.classList.remove('text-green-600');
+                fileUploadStatus.classList.add('text-gray-600');
+            }
+        });
+
+        // Range Slider Value Update
+        rangeSlider.addEventListener('input', () => {
+            sliderValueSpan.textContent = rangeSlider.value;
+        });
+
+        // Show Custom Modal
+        showModalButton.addEventListener('click', () => {
+            modalTitle.textContent = "Custom Message";
+            modalMessage.textContent = "This is a custom modal dialog for automation testing. You should be able to interact with it.";
+            customModal.classList.remove('hidden');
+        });
+
+        // Close Custom Modal
+        modalCloseButton.addEventListener('click', () => {
+            customModal.classList.add('hidden');
+        });
+
+        // Toggle Hidden Text
+        toggleHiddenTextButton.addEventListener('click', () => {
+            hiddenTextElement.classList.toggle('hidden');
+            const isHidden = hiddenTextElement.classList.contains('hidden');
+            toggleHiddenTextButton.textContent = isHidden ? 'Show Hidden Text' : 'Hide Hidden Text';
+        });
+
+        // Dynamic Elements - Add
+        let dynamicElementCounter = 0;
+        addDynamicElementsButton.addEventListener('click', () => {
+            dynamicElementCounter++;
+            const newDiv = document.createElement('div');
+            newDiv.classList.add('dynamic-item', 'p-2', 'bg-blue-100', 'rounded', 'shadow-sm');
+            newDiv.textContent = `Dynamic Item ${dynamicElementCounter}`;
+            newDiv.id = `dynamic-item-${dynamicElementCounter}`; // Unique ID for each dynamic item
+            dynamicContainer.appendChild(newDiv);
+        });
+
+        // Dynamic Elements - Remove
+        removeDynamicElementsButton.addEventListener('click', () => {
+            if (dynamicContainer.children.length > 0) {
+                dynamicContainer.removeChild(dynamicContainer.lastChild);
+                dynamicElementCounter--;
+                if (dynamicElementCounter < 0) dynamicElementCounter = 0;
+            }
+        });
+
+        // Initialize custom element
+        const shadowHost = document.getElementById('shadow-host');
+        const shadowComponent = document.createElement('shadow-dom-component');
+        shadowHost.appendChild(shadowComponent);
+
+        // Initial check on page load
+        checkLoginStatus();
+
+        // Set current date for date input
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('date-input');
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+        });
+
+    </script>
+</body>
+</html>
